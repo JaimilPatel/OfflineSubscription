@@ -1,8 +1,8 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:offline_subscription/constant/pixel_size.dart';
-import 'package:offline_subscription/constant/screen_size_config.dart';
-import 'package:offline_subscription/constant/text_styles.dart';
+import 'package:offline_subscription/core/constant/pixel_size.dart';
+import 'package:offline_subscription/core/constant/screen_size_config.dart';
+import 'package:offline_subscription/core/constant/text_styles.dart';
 import 'package:offline_subscription/presentation/subscription/model/subscription_item.dart';
 import 'package:offline_subscription/presentation/subscription/widgets/subscription_plan_view.dart';
 import 'package:offline_subscription/reusable_widgets/progress_loading_indicator.dart';
