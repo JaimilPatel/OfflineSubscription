@@ -11,4 +11,14 @@ class SharedPreferenceHelper {
     SharedPreferences prefs = serviceLocator<SharedPreferences>();
     return prefs.getString("lastPurchaseToken");
   }
+
+  static setBottomSheetShown(bool isShown) {
+    SharedPreferences prefs = serviceLocator<SharedPreferences>();
+    prefs.setBool("isBottomSheetShown", isShown);
+  }
+
+  static bool? getBottomSheetShown() {
+    SharedPreferences prefs = serviceLocator<SharedPreferences>();
+    return prefs.getBool("isBottomSheetShown");
+  }
 }
