@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:offline_subscription/constant/pixel_size.dart';
-import 'package:offline_subscription/constant/text_styles.dart';
+import 'package:offline_subscription/core/constant/pixel_size.dart';
+import 'package:offline_subscription/core/constant/text_styles.dart';
 
 class ReusableButton extends StatelessWidget {
   final String text;

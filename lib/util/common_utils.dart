@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:offline_subscription/constant/pixel_size.dart';
+import 'package:offline_subscription/core/constant/pixel_size.dart';
 
 class CommonUtils {
   static void displayToast(BuildContext context, String message) {

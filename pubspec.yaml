@@ -38,6 +38,15 @@ dependencies:
   cupertino_icons: ^1.0.2
   fluttertoast: ^8.2.2
   loading_indicator: ^3.1.1
+  flutter_bloc: ^8.0.1
+  get_it: ^7.2.0
+  dartz: ^0.10.1
+  equatable: ^2.0.3
+  shared_preferences: ^2.0.8
+  package_info_plus: ^3.0.2
+  url_launcher: ^6.1.11
+  flutter_inapp_purchase: ^5.4.2
+  dio: ^5.1.1
 
 dev_dependencies:
   flutter_test:

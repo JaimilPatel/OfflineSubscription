@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:loading_indicator/loading_indicator.dart';
-import 'package:offline_subscription/constant/pixel_size.dart';
-import 'package:offline_subscription/constant/screen_size_config.dart';
+import 'package:offline_subscription/core/constant/pixel_size.dart';
+import 'package:offline_subscription/core/constant/screen_size_config.dart';
 
 class ProgressLoadingIndicator extends StatelessWidget {
   final List<Color>? colors;
