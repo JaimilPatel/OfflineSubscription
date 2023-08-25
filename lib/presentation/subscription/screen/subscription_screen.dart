@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
+import 'package:googleapis_auth/auth_io.dart';
 import 'package:offline_subscription/core/constant/pixel_size.dart';
 import 'package:offline_subscription/core/constant/screen_size_config.dart';
 import 'package:offline_subscription/core/constant/text_styles.dart';
@@ -19,6 +20,7 @@ import 'package:offline_subscription/reusable_widgets/progress_loading_indicator
 import 'package:offline_subscription/reusable_widgets/reusable_button.dart';
 import 'package:offline_subscription/util/common_utils.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import "package:http/http.dart" as http;
 
 class SubscriptionScreen extends StatefulWidget {
   const SubscriptionScreen({Key? key}) : super(key: key);
@@ -35,6 +37,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
   StreamSubscription? _purchaseErrorSubscription;
   final List<PurchasedItem> _pastPurchases = [];
   final ScrollController _scrollController = ScrollController();
+  String accessToken = "";
   bool _isRestoredEnable = false;
   bool _isNextEnable = false;
   bool _isProgressDone = false;
@@ -45,7 +48,36 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     SchedulerBinding.instance.addPostFrameCallback((timeStamp) async {
       _subscriptionBloc = BlocProvider.of<SubscriptionBloc>(context);
       _subscriptionBloc?.add(InitializeSubscriptionEvent());
+      await _getDetailsToVerifyPurchaseOnAndroid();
     });
+  }
+
+  Future _getDetailsToVerifyPurchaseOnAndroid() async {
+    if (Platform.isAndroid) {
+      AccessCredentials credentials = await obtainCredentials();
+      setState(() {
+        accessToken = credentials.accessToken.data;
+      });
+    }
+  }
+
+  Future<AccessCredentials> obtainCredentials() async {
+    var accountCredentials = ServiceAccountCredentials.fromJson({
+      'private_key_id': "<private key id from secure space>",
+      'private_key': "<private key from secure space>",
+      'client_email': "<client email from secure space>",
+      'client_id': "<client id from secure space>",
+      'type': "<type from secure space>",
+    });
+    var scopes = ["https://www.googleapis.com/auth/androidpublisher"];
+
+    var client = http.Client();
+    AccessCredentials credentials =
+        await obtainAccessCredentialsViaServiceAccount(
+            accountCredentials, scopes, client);
+
+    client.close();
+    return credentials;
   }
 
   @override
@@ -102,7 +134,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         padding:
             EdgeInsets.only(top: PixelSize.value10, bottom: PixelSize.value5),
         child: Text(
-          "Choose Subscription Plan",
+          "Subscription Plans",
           style:
               TextStyles.getH0(Colors.black, FontWeight.w600, FontStyle.normal),
         ),
@@ -219,7 +251,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       );
 
   void _onRestoreTap(BuildContext context) {
-    //TODO Display Alert Dialog
+    CommonUtils.displayToast(
+        context, "Your subscription plan has been restored");
   }
 
   void _subscriptionStateWiseMethod(
@@ -250,14 +283,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       _completeIOSTransaction(state);
     } else if (state is VerifyPurchaseIOSFailure) {
       CommonUtils.displayToast(context, state.errorMessage);
-    } else if (state is CancelChangeSubscriptionSuccess) {
-      debugPrint(state.toString());
-    } else if (state is CancelChangeSubscriptionFailure) {
-      CommonUtils.displayToast(context, state.errorMessage);
     } else if (state is CompleteTransactionSuccess) {
       _subscriptionBloc?.add(
           const PurchaseSubscriptionProductLoadingEvent(isLoading: false));
-      if (ModalRoute.of(context)?.settings.name == SubscriptionPage.tag) {
+      if (ModalRoute.of(context)?.settings.name == SubscriptionPage.tag ||
+          ModalRoute.of(context)?.settings.name == "/") {
         if (Platform.isIOS) {
           if (SharedPreferenceHelper.getBottomSheetShown() == true) {
             _showBottomSheet(context);
@@ -382,8 +412,6 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           } else if (productItem.purchaseStateAndroid ==
               PurchaseState.purchased) {
             debugPrint('purchase-purchased:');
-            SharedPreferenceHelper.setLastPurchaseToken(
-                productItem.purchaseToken ?? "");
             _verifyAndroidReceipt(productItem);
           } else {
             debugPrint('purchase-failed:');
@@ -413,7 +441,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         packageName: packageInfo.packageName,
         productId: productItem.productId ?? "",
         productToken: productItem.purchaseToken ?? "",
-        accessToken: "",
+        accessToken: accessToken,
         isSubscription: true);
     _subscriptionBloc?.add(VerifyReceiptAndroidEvent(
         purchaseReceiptAndroid: purchaseReceiptAndroid,
