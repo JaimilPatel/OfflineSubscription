@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:offline_subscription/core/constant/pixel_size.dart';
+import 'package:offline_subscription/core/constant/string_constant.dart';
 import 'package:offline_subscription/core/constant/text_styles.dart';
 import 'package:offline_subscription/util/common_utils.dart';
 
@@ -40,8 +41,8 @@ class _SubscriptionPlanViewState extends State<SubscriptionPlanView> {
       InkWell(
         onTap: widget.isPlanDisable
             ? () {
-                CommonUtils.displayToast(context,
-                    "You have active subscription plan so please restore it using restore button");
+                CommonUtils.displayToast(
+                    context, StringConstant.activeSubscription);
               }
             : () {
                 _onPlanViewTap(index);

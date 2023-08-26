@@ -116,21 +116,6 @@ class VerifyPurchaseIOSSuccess extends SubscriptionState {
   String toString() => 'VerifyPurchaseIOSSuccess';
 }
 
-//Cancel Or Change Subscription
-class CancelChangeSubscriptionLoading extends SubscriptionState {}
-
-class CancelChangeSubscriptionFailure extends SubscriptionState {
-  final String errorMessage;
-  const CancelChangeSubscriptionFailure({required this.errorMessage});
-  @override
-  String toString() => 'CancelChangeSubscriptionFailure';
-}
-
-class CancelChangeSubscriptionSuccess extends SubscriptionState {
-  @override
-  String toString() => 'CancelChangeSubscriptionSuccess';
-}
-
 //Complete Transaction
 
 class CompleteTransactionLoading extends SubscriptionState {}

@@ -1,4 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:offline_subscription/core/constant/app_constant.dart';
 import 'package:offline_subscription/core/usecase/usecase.dart';
 import 'package:offline_subscription/domain/usecases/check_subscription_ready_status.dart';
 import 'package:offline_subscription/domain/usecases/complete_transaction.dart';
@@ -163,7 +164,7 @@ class SubscriptionBloc extends Bloc<SubscriptionEvent, SubscriptionState> {
     result.fold((failure) {
       emit(GetSubscriptionStatusFailure(errorMessage: failure.message));
     }, (value) async {
-      if (value.productId!.contains("yearly")) {
+      if (value.productId!.contains(AppConstant.yearly)) {
         emit(GetYearlySubscriptionStatusSuccess(
             subscriptionStateResponse: value));
       } else {
