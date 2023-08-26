@@ -79,20 +79,6 @@ class VerifyReceiptIOSEvent extends SubscriptionEvent {
   String toString() => 'VerifyReceiptIOS Event';
 }
 
-class CancelChangeSubscriptionEvent extends SubscriptionEvent {
-  final bool isForCancel;
-  final String productId;
-
-  const CancelChangeSubscriptionEvent(
-      {required this.isForCancel, required this.productId});
-
-  @override
-  List<Object> get props => [isForCancel];
-
-  @override
-  String toString() => 'CancelChangeSubscription Event';
-}
-
 class CompleteTransactionEvent extends SubscriptionEvent {
   final PurchasedItem? purchasedItem;
   final String? transactionId;

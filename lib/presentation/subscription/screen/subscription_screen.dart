@@ -5,8 +5,12 @@ import 'package:flutter/scheduler.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inapp_purchase/flutter_inapp_purchase.dart';
 import 'package:googleapis_auth/auth_io.dart';
+import 'package:offline_subscription/core/constant/app_constant.dart';
+import 'package:offline_subscription/core/constant/color_constant.dart';
+import 'package:offline_subscription/core/constant/param_constant.dart';
 import 'package:offline_subscription/core/constant/pixel_size.dart';
 import 'package:offline_subscription/core/constant/screen_size_config.dart';
+import 'package:offline_subscription/core/constant/string_constant.dart';
 import 'package:offline_subscription/core/constant/text_styles.dart';
 import 'package:offline_subscription/core/sharepref_helper.dart';
 import 'package:offline_subscription/presentation/subscription/bloc/subscription_bloc.dart';
@@ -63,13 +67,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   Future<AccessCredentials> obtainCredentials() async {
     var accountCredentials = ServiceAccountCredentials.fromJson({
-      'private_key_id': "<private key id from secure space>",
-      'private_key': "<private key from secure space>",
-      'client_email': "<client email from secure space>",
-      'client_id': "<client id from secure space>",
-      'type': "<type from secure space>",
+      ParamConstant.privateKeyId: "<private key id from secure space>",
+      ParamConstant.privateKey: "<private key from secure space>",
+      ParamConstant.clientEmail: "<client email from secure space>",
+      ParamConstant.clientId: "<client id from secure space>",
+      ParamConstant.type: "<type from secure space>",
     });
-    var scopes = ["https://www.googleapis.com/auth/androidpublisher"];
+    var scopes = [AppConstant.verifyingScope];
 
     var client = http.Client();
     AccessCredentials credentials =
@@ -134,7 +138,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         padding:
             EdgeInsets.only(top: PixelSize.value10, bottom: PixelSize.value5),
         child: Text(
-          "Subscription Plans",
+          StringConstant.subscriptionPlans,
           style:
               TextStyles.getH0(Colors.black, FontWeight.w600, FontStyle.normal),
         ),
@@ -175,9 +179,11 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
           },
           itemCount: _subscriptionItems.length);
 
-  String _getRatePerMonthYear(int index) => index == 0 ? "/Month" : "/Year";
+  String _getRatePerMonthYear(int index) =>
+      index == 0 ? StringConstant.slashMonth : StringConstant.slashYear;
 
-  String _getPerMonthYear(int index) => index == 0 ? " per month" : " per year";
+  String _getPerMonthYear(int index) =>
+      index == 0 ? StringConstant.perMonth : StringConstant.perYear;
 
   Widget _indicatingLoader() => SizedBox(
         height: ScreenSizeConfig.screenHeight * 0.3,
@@ -221,7 +227,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
         margin: EdgeInsets.symmetric(
             horizontal: PixelSize.value10, vertical: PixelSize.value25),
         child: ReusableButton(
-            text: "Next",
+            text: StringConstant.next,
             onPressed: _selectedIndex != 0 && _isNextEnable == true
                 ? () {
                     _purchaseSubscriptionProduct(context);
@@ -229,30 +235,31 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
                 : null,
             textColor: _selectedIndex != 0 && _isNextEnable == true
                 ? Colors.white
-                : Color(0xFF777777),
+                : ColorConstant.greyColor,
             backgroundColor: _selectedIndex != 0 && _isNextEnable == true
                 ? Colors.red
-                : Color(0xFFE3E3E3)),
+                : ColorConstant.whiteColor),
       );
 
   Widget _restoreBtn(BuildContext context) => Container(
         width: ScreenSizeConfig.screenWidth,
         margin: EdgeInsets.symmetric(horizontal: PixelSize.value10),
         child: ReusableButton(
-            text: "Restore",
+            text: StringConstant.restore,
             onPressed: _isRestoredEnable
                 ? () {
                     _onRestoreTap(context);
                   }
                 : null,
-            textColor: _isRestoredEnable ? Colors.white : Color(0xFF777777),
+            textColor:
+                _isRestoredEnable ? Colors.white : ColorConstant.greyColor,
             backgroundColor:
-                _isRestoredEnable ? Colors.red : Color(0xFFE3E3E3)),
+                _isRestoredEnable ? Colors.red : ColorConstant.whiteColor),
       );
 
   void _onRestoreTap(BuildContext context) {
-    CommonUtils.displayToast(
-        context, "Your subscription plan has been restored");
+    //You can save plan detail in your preference
+    CommonUtils.displayToast(context, StringConstant.restoredPlan);
   }
 
   void _subscriptionStateWiseMethod(
@@ -309,15 +316,13 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   void _getSubscriptionProducts() async {
     await _listenPurchaseStreams();
-    _subscriptionBloc?.add(GetSubscriptionProductsEvent(productIds: [
-      "com.jp.offlinesubscription.monthly",
-      "com.jp.offlinesubscription.yearly"
-    ]));
+    _subscriptionBloc?.add(const GetSubscriptionProductsEvent(
+        productIds: [AppConstant.monthlyPlan, AppConstant.yearlyPlan]));
     await FlutterInappPurchase.instance.initialize();
     bool isMonthlyActive = await FlutterInappPurchase.instance
-        .checkSubscribed(sku: "com.jp.offlinesubscription.monthly");
+        .checkSubscribed(sku: AppConstant.monthlyPlan);
     bool isYearlyActive = await FlutterInappPurchase.instance
-        .checkSubscribed(sku: "com.jp.offlinesubscription.yearly");
+        .checkSubscribed(sku: AppConstant.yearlyPlan);
     if (isMonthlyActive || isYearlyActive) {
       setState(() {
         _isRestoredEnable = true;
@@ -368,7 +373,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
       if (Platform.isIOS) {
         _subscriptionBloc?.add(CompleteTransactionEvent(
             transactionId: state.verifyReceiptIOSRes.purchaseReceiptIOS
-                    .receiptBody["transactionId"] ??
+                    .receiptBody[ParamConstant.transactionId] ??
                 ""));
       }
     }
@@ -428,8 +433,8 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
 
   void _verifyIOSReceipt(PurchasedItem productItem) {
     PurchaseReceiptIOS purchaseReceiptIOS = PurchaseReceiptIOS(receiptBody: {
-      'receipt-data': productItem.transactionReceipt ?? "",
-      "password": "<app-specific-shared-secret>" ?? ""
+      ParamConstant.receiptData: productItem.transactionReceipt ?? "",
+      ParamConstant.password: "<app-specific-shared-secret>"
     }, isTest: false);
     _subscriptionBloc
         ?.add(VerifyReceiptIOSEvent(purchaseReceiptIOS: purchaseReceiptIOS));
@@ -452,7 +457,7 @@ class _SubscriptionScreenState extends State<SubscriptionScreen> {
     if (Platform.isIOS) {
       SharedPreferenceHelper.setBottomSheetShown(false);
     }
-    CommonUtils.displayToast(context, "Subscription Plan Purchase Successful");
+    CommonUtils.displayToast(context, StringConstant.purchaseSuccessfully);
   }
 
   void _purchaseSubscriptionProduct(BuildContext context) {
