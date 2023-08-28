@@ -1,5 +1,6 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.jp.offline_subscription">
+    <uses-permission android:name="com.android.vending.BILLING" />
    <application
         android:label="offline_subscription"
         android:name="${applicationName}"
